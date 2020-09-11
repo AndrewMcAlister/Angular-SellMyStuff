@@ -1,7 +1,7 @@
 import { InMemoryDbService } from 'angular-in-memory-web-api';
-import { SaleItem } from '../components/saleitem/saleitem';
-import { Category } from '../components/shared/category/category';
-import { User } from '../components/user/user';
+import { SaleItem } from '../interfaces/saleitem';
+import { Category } from '../interfaces/category';
+import { User } from '../interfaces/user';
 import { SaleItemData } from './fakedata/saleitem-data';
 import { CategoryData } from './fakedata/category-data';
 import { UserData } from './fakedata/user-data';

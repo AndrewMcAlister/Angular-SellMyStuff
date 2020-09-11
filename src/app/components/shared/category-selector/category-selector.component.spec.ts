@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CategorySelectorComponent } from './category-selector.component';
 
-describe('CategorySelectorComponent', () => {
+describe('CategoryViewComponent', () => {
   let component: CategorySelectorComponent;
   let fixture: ComponentFixture<CategorySelectorComponent>;
 

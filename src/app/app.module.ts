@@ -4,7 +4,7 @@ import { FormsModule }  from '@angular/forms';
 import { AppComponent } from './app.component';
 import { SaleitemViewComponent } from './components/saleitem/saleitem-view/saleitem-view.component';
 import { AppRoutingModule } from './app-routing.module';
-import { CategorySelectorComponent } from './components/shared/category/category-selector/category-selector.component';
+import { CategorySelectorComponent } from './components/shared/category-selector/category-selector.component';
 import { HttpClientModule } from '@angular/common/http';
 import { InMemoryWebApiModule } from 'angular-in-memory-web-api';
 import { AppDataService } from './services/app-data.service';
@@ -19,14 +19,18 @@ import { CategoryComponent } from './components/category/category.component';
     CategorySelectorComponent,
     LoginComponent,
     UserRegisterComponent,
-    CategoryComponent    
+    CategoryComponent,
+    CategorySelectorComponent   
   ],
   imports: [
     BrowserModule,
     FormsModule,
     AppRoutingModule,
     HttpClientModule,
-    InMemoryWebApiModule.forRoot(AppDataService, { delay: 1000 })  ,    
+    InMemoryWebApiModule.forRoot(AppDataService, { delay: 1000 })
+  ],
+  exports: [
+    CategorySelectorComponent
   ],
   providers: [],
   bootstrap: [AppComponent]

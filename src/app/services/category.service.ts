@@ -1,27 +1,28 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { Observable,BehaviorSubject, throwError,Subject, of } from 'rxjs';
+import { Observable, BehaviorSubject, throwError, Subject, of } from 'rxjs';
 import { catchError, tap, shareReplay } from 'rxjs/operators';
 import { Guid } from "guid-typescript";
-import { Category } from '../components/shared/category/category';
+import { Category } from '../interfaces/category';
 
 @Injectable({
     providedIn: 'root'
 })
 export class CategoryService {
     private categoryUrl = 'api/categories';
-    private categories: Category[];
+    public categories: Category[];
     private selectedCategorySource = new BehaviorSubject<Category | null>(null);
     selectedCategoryChanges$ = this.selectedCategorySource.asObservable();
 
+
     // All Categories
-    categories$:Observable<Category[]> = this.http.get<Category[]>(this.categoryUrl)
+    categories$ = this.http.get<Category[]>(this.categoryUrl)
         .pipe(
-            tap(data => console.log('Categories', JSON.stringify(data))),
+            tap(data => console.log('Categories here', JSON.stringify(data))),
+            tap(data => this.categories = data),
             catchError(this.handleError),
             shareReplay(1)
-        ).source
-    ;
+        );
 
     constructor(private http: HttpClient) {
     }
@@ -38,7 +39,7 @@ export class CategoryService {
         return this.updateCategory(Category, headers);
     }
 
-    deleteCategory(id: Guid): Observable<string | Category> {
+    deleteCategory(id: string): Observable<string | Category> {
         const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
         const url = `${this.categoryUrl}/${id}`;
         return this.http.delete<Category>(url, { headers: headers })
@@ -80,10 +81,10 @@ export class CategoryService {
     private initializeCategory(): Category {
         // Return an initialized object
         return {
-            'id': Guid.create(),
+            'id': Guid.create().toString(),
             name: '',
             parentId: null,
-            childCategories: null
+            categories: null
         };
     }
 

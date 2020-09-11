@@ -2,11 +2,11 @@ import { Injectable, Pipe } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable,BehaviorSubject, throwError,Subject, of,combineLatest, from } from 'rxjs';
 import { catchError, tap, map, shareReplay, filter } from 'rxjs/operators';
-import { SaleItem } from '../components/saleitem/saleitem';
+import { SaleItem } from '../interfaces/saleitem';
 import { Guid } from "guid-typescript";
 import { AppDataService } from './app-data.service'
 import { CategoryService } from './category.service';
-import { Category } from '../components/category/category';
+import { Category } from '../interfaces/category';
 import { stringify } from 'querystring';
 
 @Injectable({

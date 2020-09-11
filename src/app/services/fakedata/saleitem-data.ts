@@ -1,4 +1,4 @@
-import { SaleItem } from '../../components/saleitem/saleitem';
+import { SaleItem } from '../../interfaces/saleitem';
 import { Guid } from 'guid-typescript';
 
 export class SaleItemData {

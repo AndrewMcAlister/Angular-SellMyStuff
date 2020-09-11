@@ -1,4 +1,4 @@
-import { User } from '../../components/user/user';
+import { User } from '../../interfaces/user';
 import { getMaxListeners } from 'process';
 import { Guid } from 'guid-typescript';
 
