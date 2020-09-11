@@ -12,8 +12,8 @@ export class CategoryService {
     private categoryUrl = 'api/categories';
     public categories: Category[];
     private selectedCategorySource = new BehaviorSubject<Category | null>(null);
+    public selectedCategoryId: string;
     selectedCategoryChanges$ = this.selectedCategorySource.asObservable();
-
 
     // All Categories
     categories$ = this.http.get<Category[]>(this.categoryUrl)

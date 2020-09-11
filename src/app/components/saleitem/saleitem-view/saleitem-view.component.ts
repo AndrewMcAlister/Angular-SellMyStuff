@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { CategorySelectorComponent } from '../../shared/category-selector/category-selector.component';
 import { CategoryService } from '../../../services/category.service';
 import { Category } from '../../../interfaces/category';
@@ -12,9 +12,10 @@ import { tap, finalize } from 'rxjs/operators';
 export class SaleitemViewComponent implements OnInit {
 
   searchText: string;
+
+  //Category Component fields
   categories: Category[];
   selectedCategoryId: string;
-  @ViewChild(CategorySelectorComponent) categorySelector: CategorySelectorComponent;
 
   constructor(private cs: CategoryService) { }
 
@@ -29,6 +30,5 @@ export class SaleitemViewComponent implements OnInit {
 
   onCategoryChanged(value: string): void {
     this.selectedCategoryId=value;
-    console.log("ParentComponent: Selected cat is " + value);
   }
 }

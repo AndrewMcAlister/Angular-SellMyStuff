@@ -22,7 +22,14 @@ export class CategoryData {
                             id: "30C22A7F-026E-475C-BA4A-4C1FD2B9329B",
                             name: "HiFi",
                             parentId: "F74F30C5-ED75-4B42-B1B1-B3A585EBB5B2",
-                            categories: []
+                            categories: [
+                                {
+                                    id: "CFBC01DC-DE8D-42BE-A26B-2757387D89D4",
+                                    name: "Amplifiers",
+                                    parentId: "30C22A7F-026E-475C-BA4A-4C1FD2B9329B",
+                                    categories: []
+                                }
+                            ]
                         }
                     ]
                 },

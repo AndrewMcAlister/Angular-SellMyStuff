@@ -1,6 +1,5 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { Category } from '../../../interfaces/category';
-import { Guid } from 'guid-typescript';
+import { Component, Input, Output, EventEmitter} from '@angular/core';
+import { CategoryService } from 'src/app/services/category.service';
 
 @Component({
   selector: 'category-selector',
@@ -9,33 +8,44 @@ import { Guid } from 'guid-typescript';
   <ul *ngIf="categories.length">
     <div *ngFor="let category of categories">
       <li>
-        <button value="{{category.id}}" (click)='selectCategory($event.target.value)'>{{category.name}}</button>
+        <span>
+          <button (click)='collapseChildren()' class="collapseCross" *ngIf="category.categories.length && !expanded">+</button>
+          <button (click)='collapseChildren()' class="collapseCross" *ngIf="category.categories.length && expanded">-</button>        
+          <button value="{{category.id}}" class="categoryButton" [ngClass]="{catSelected:[selectedId]==category.id}" (click)='selectCategory($event.target.value)'>{{category.name}}</button>
+        </span>
       </li>
-      <category-selector *ngIf="category.categories.length" [categories]="category.categories" (categoryChanged)='onCategoryChanged($event)'></category-selector>
+      <category-selector *ngIf="category.categories.length && expanded" [categories]="category.categories" (categoryChanged)='onCategoryChanged($event)'></category-selector>
     </div>
   </ul>
   `,
   styleUrls: ['./category-selector.component.css']
 })
-export class CategorySelectorComponent implements OnInit {
+export class CategorySelectorComponent {
   @Input() categories: any[];
-  @Input() key: string;
-  @Input() customEventName: string;
-  
   @Output() categoryChanged = new EventEmitter<string>();
 
-  constructor() { }
+  expanded: boolean;
+  selectedId: string;
 
-  selectCategory(value:string): void {
-    console.log("CategoryComponent: You clicked " + value);
+  constructor(private catSer: CategoryService) {
+    expanded: false;
+    selected: false;
+   }
+
+  selectCategory(value: string): void {
     this.categoryChanged.emit(value);
-  }
+    this.selectedId=value;
+    this.catSer.selectedCategoryId=value;
+    }
 
+  //bubbles child events
   onCategoryChanged(value: string): void {
     this.categoryChanged.emit(value);
+    this.selectedId=value;
   }
 
-  ngOnInit() {
+  collapseChildren(): void {
+    this.expanded = !this.expanded;
   }
 
 }
