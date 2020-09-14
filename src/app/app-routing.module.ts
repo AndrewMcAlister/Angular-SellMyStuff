@@ -6,6 +6,10 @@ import { SaleitemViewComponent } from './components/saleitem/saleitem-view/salei
     imports: [
         RouterModule.forRoot([
             {
+                path: '',
+                component: SaleitemViewComponent
+            },
+            {
                 path: 'forsale',
                 component: SaleitemViewComponent
             }

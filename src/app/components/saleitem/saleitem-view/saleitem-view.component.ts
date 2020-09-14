@@ -20,15 +20,15 @@ export class SaleitemViewComponent implements OnInit {
   constructor(private cs: CategoryService) { }
 
   ngOnInit(): void {
-    this.cs.categories$
+    this.cs.getCategories() //supplies the category[] to the category-selector component
       .pipe(
         tap(cats => this.categories = cats)
       ).subscribe(p => this.categories = p);
-
-    console.log("Categories:" + JSON.stringify(this.categories));
   }
 
   onCategoryChanged(value: string): void {
     this.selectedCategoryId=value;
   }
+
+  //this.cs.getCategoriesInCategory
 }

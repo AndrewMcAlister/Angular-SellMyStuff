@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError, Subject, of } from 'rxjs';
-import { catchError, tap, shareReplay } from 'rxjs/operators';
+import { catchError, tap, shareReplay, filter } from 'rxjs/operators';
 import { Guid } from "guid-typescript";
 import { Category } from '../interfaces/category';
 
@@ -10,26 +10,79 @@ import { Category } from '../interfaces/category';
 })
 export class CategoryService {
     private categoryUrl = 'api/categories';
-    public categories: Category[];
-    private selectedCategorySource = new BehaviorSubject<Category | null>(null);
-    public selectedCategoryId: string;
-    selectedCategoryChanges$ = this.selectedCategorySource.asObservable();
+    private categories: Category[]=[];
+    private flatCats: Category[]=[];
+
+    private selectedCategoryId = new BehaviorSubject<string | null>(null);
+    //private categoriesInSelection = new BehaviorSubject<string[] | null>(null);
+    selectedCategoryId$ = this.selectedCategoryId.asObservable();
+    //categoriesInSelection$ = this.categoriesInSelection.asObservable();
 
     // All Categories
-    categories$ = this.http.get<Category[]>(this.categoryUrl)
-        .pipe(
-            tap(data => console.log('Categories here', JSON.stringify(data))),
-            tap(data => this.categories = data),
-            catchError(this.handleError),
-            shareReplay(1)
-        );
+    getCategories(): Observable<Category[]> {
+        return this.http.get<Category[]>(this.categoryUrl)
+            .pipe(
+                catchError(this.handleError),
+                tap(c => {
+                    this.categories = c;
+                    this.flatCats = this.flattenCategories(c[0],this.flatCats);
+                })
+            );
+        shareReplay(1)
+    }
 
     constructor(private http: HttpClient) {
     }
 
-    changeSelectedCategory(selectedCategory: Category | null): void {
-        this.selectedCategorySource.next(selectedCategory);
+    changeSelectedCategory(id: string): void {
+        if (id) {
+            this.selectedCategoryId.next(id);
+        }
     }
+
+    getCategoriesInCategory(id: string): string[] | null {
+        var result: string[];
+        if (this.flatCats && id) {
+            var c=this.flatCats.find(p=>p.id==id);
+            if(c) {
+                result=this.flattenCategoryIds(c,result);
+            }
+        }
+        return result;
+    }
+
+    getCategory(id: string, cats: (Category[] | null)): Category {
+        if (this.flatCats) {
+            console.log("Service has flatCats ");
+            var cat = this.flatCats.find(p => p.id.toString() == id);
+            console.log("Found category is " + JSON.stringify(cat));
+            return cat;
+        }
+        else
+            return this.initializeCategory();
+    }
+
+    flattenCategories(cat: Category, catArr: Category[]): Category[] {
+        if (!cat.categories || cat.categories.length == 0)
+            return catArr;
+        if (cat.categories && cat.categories.length > 0) {
+            cat.categories.forEach(c => {
+                catArr.push(c);
+                this.flattenCategories(c, catArr);
+            });
+        }
+    }
+
+    flattenCategoryIds(cat: Category, catIdArr: string[]): string[] {
+        if (!cat.categories || cat.categories.length == 0)
+            return catIdArr;
+        if (cat.categories && cat.categories.length > 0) {
+            cat.categories.forEach(c => {
+                catIdArr.push(c.id);
+                this.flattenCategoryIds(c, catIdArr);
+            });
+        }
+    }    
 
     saveCategory(Category: Category): Observable<string | Category> {
         const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
@@ -63,7 +116,7 @@ export class CategoryService {
                 tap(data => console.log('createCategory: ' + JSON.stringify(data))),
                 tap(data => {
                     this.categories.push(data);
-                    this.changeSelectedCategory(data);
+                    this.changeSelectedCategory(data.id);
                 }),
                 catchError(this.handleError)
             );

@@ -28,7 +28,13 @@ export class CategoryData {
                                     name: "Amplifiers",
                                     parentId: "30C22A7F-026E-475C-BA4A-4C1FD2B9329B",
                                     categories: []
-                                }
+                                },
+                                {
+                                    id: "CFBC01DC-DE8D-42BE-A26B-275738HL89D4",
+                                    name: "Speakers",
+                                    parentId: "30C22A7F-026E-475C-BA4A-4C1FD2B9329B",
+                                    categories: []
+                                }                                
                             ]
                         }
                     ]

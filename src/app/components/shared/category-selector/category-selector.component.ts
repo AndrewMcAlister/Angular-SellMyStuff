@@ -1,4 +1,7 @@
-import { Component, Input, Output, EventEmitter} from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
+import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { Category } from 'src/app/interfaces/category';
 import { CategoryService } from 'src/app/services/category.service';
 
 @Component({
@@ -20,9 +23,10 @@ import { CategoryService } from 'src/app/services/category.service';
   `,
   styleUrls: ['./category-selector.component.css']
 })
-export class CategorySelectorComponent {
+export class CategorySelectorComponent implements OnInit {
   @Input() categories: any[];
   @Output() categoryChanged = new EventEmitter<string>();
+  sub: Subscription;
 
   expanded: boolean;
   selectedId: string;
@@ -33,16 +37,16 @@ export class CategorySelectorComponent {
    }
 
   selectCategory(value: string): void {
-    this.categoryChanged.emit(value);
-    this.selectedId=value;
-    this.catSer.selectedCategoryId=value;
+    console.log("Component last selected category was " + this.selectedId);    
+  this.catSer.changeSelectedCategory(value);
+    console.log("Component selected category is " + JSON.stringify(value));    
     }
 
-  //bubbles child events
-  onCategoryChanged(value: string): void {
-    this.categoryChanged.emit(value);
-    this.selectedId=value;
-  }
+    ngOnInit() {
+      this.sub=this.catSer.selectedCategoryId$.subscribe(
+        id=>this.selectedId=id
+      );
+    }
 
   collapseChildren(): void {
     this.expanded = !this.expanded;

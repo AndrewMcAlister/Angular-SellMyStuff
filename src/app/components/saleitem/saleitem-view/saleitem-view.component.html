@@ -1,5 +1,6 @@
-<input type="text" name="searchBox" [(ngModel)]="searchText"/>You Typed {{searchText}}
-And your category id is {{selectedCategoryId}}
-<div *ngIf='categories' >
-<category-selector #categorySelector [categories]='categories' (categoryChanged)='onCategoryChanged($event)'></category-selector>
+<input type="text" name="searchBox" [(ngModel)]="searchText" />You Typed {{searchText}}
+<div class='categorySelection'>
+    Your category id is {{selectedCategoryId}}
+    <category-selector *ngIf='categories' #categorySelector [categories]='categories'
+        (categoryChanged)='onCategoryChanged($event)'></category-selector>
 </div>
