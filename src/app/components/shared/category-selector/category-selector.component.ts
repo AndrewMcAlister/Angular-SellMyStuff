@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Category } from 'src/app/interfaces/category';
@@ -17,36 +17,42 @@ import { CategoryService } from 'src/app/services/category.service';
           <button value="{{category.id}}" class="categoryButton" [ngClass]="{catSelected:[selectedId]==category.id}" (click)='selectCategory($event.target.value)'>{{category.name}}</button>
         </span>
       </li>
-      <category-selector *ngIf="category.categories.length && expanded" [categories]="category.categories" (categoryChanged)='onCategoryChanged($event)'></category-selector>
+      <category-selector *ngIf="category.categories.length && expanded" [categories]="category.categories"></category-selector>
     </div>
   </ul>
   `,
   styleUrls: ['./category-selector.component.css']
 })
-export class CategorySelectorComponent implements OnInit {
+export class CategorySelectorComponent implements OnInit, OnDestroy {
   @Input() categories: any[];
-  @Output() categoryChanged = new EventEmitter<string>();
+  //@Output() categoryChanged = new EventEmitter<Category>();
   sub: Subscription;
 
   expanded: boolean;
-  selectedId: string;
+  selectedCategory: Category;
 
+  get selectedId(): string {
+    if(this.selectedCategory)
+      return this.selectedCategory.id;
+    else return "";
+  }
+  
   constructor(private catSer: CategoryService) {
     expanded: false;
     selected: false;
-   }
+  }
+
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
+  }
 
   selectCategory(value: string): void {
-    console.log("Component last selected category was " + this.selectedId);    
-  this.catSer.changeSelectedCategory(value);
-    console.log("Component selected category is " + JSON.stringify(value));    
-    }
+    this.catSer.changeSelectedCategory(value);
+  }
 
-    ngOnInit() {
-      this.sub=this.catSer.selectedCategoryId$.subscribe(
-        id=>this.selectedId=id
-      );
-    }
+  ngOnInit() {
+    this.sub = this.catSer.selectedCategory$.subscribe(cat => this.selectedCategory = cat);
+  }
 
   collapseChildren(): void {
     this.expanded = !this.expanded;

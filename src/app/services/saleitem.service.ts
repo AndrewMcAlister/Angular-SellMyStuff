@@ -1,6 +1,6 @@
 import { Injectable, Pipe } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams, HttpHeaders } from '@angular/common/http';
-import { Observable,BehaviorSubject, throwError,Subject, of,combineLatest, from } from 'rxjs';
+import { Observable, BehaviorSubject, throwError, Subject, of, combineLatest, from } from 'rxjs';
 import { catchError, tap, map, shareReplay, filter } from 'rxjs/operators';
 import { SaleItem } from '../interfaces/saleitem';
 import { Guid } from "guid-typescript";
@@ -15,19 +15,42 @@ import { stringify } from 'querystring';
 export class SaleItemService {
     private saleitemsUrl = 'api/saleitems';
     private saleitems: SaleItem[];
+    private selectedSaleItem = new BehaviorSubject<SaleItem | null>(null);
+    selectedSaleItemChanges$ = this.selectedSaleItem.asObservable();
+    private searchResults = new BehaviorSubject<SaleItem[] | null>(null);
+    searchResults$ = this.searchResults.asObservable();
 
     constructor(private http: HttpClient,
         private categoryservice: CategoryService) {
     }
-
-    private selectedSaleItemSource = new BehaviorSubject<SaleItem | null>(null);
-    selectedSaleItemChanges$ = this.selectedSaleItemSource.asObservable();
 
     saleitems$ = this.http.get<SaleItem[]>(this.saleitemsUrl)
         .pipe(
             tap(data => console.log('SaleItems', JSON.stringify(data))),
             tap(data => this.saleitems = data)
         );
+
+    searchSaleItems(cats: string[], searchText: string) {
+        if(cats) {
+            if(!this.saleitems) {
+                var res=this.getAllSaleItems();
+            }
+        //     var results = this.saleitems.filter(
+        //         p => cats.includes(p.categoryId.toString())
+        //             && (
+        //                 p.tags.map(q=>q.toLocaleLowerCase()).includes(searchText.toLocaleLowerCase())
+        //                 || p.description.toLocaleLowerCase().includes(searchText.toLocaleLowerCase())
+        //                 || p.title.toLocaleLowerCase().includes(searchText.toLocaleLowerCase())
+        //             )
+        //     );
+        //     if (results)
+        //         this.searchResults.next(results);
+        // };
+        var arr: SaleItem[]=[];
+        arr.push(this.saleitems[0]);
+        this.searchResults.next(arr);
+        }
+    }
 
     // All saleitems
     getAllSaleItems(): Observable<SaleItem[]> {
@@ -36,34 +59,25 @@ export class SaleItemService {
                 tap(data => console.log('SaleItems', JSON.stringify(data))),
                 tap(data => this.saleitems = data)
             );
-        this.saleitems$ = resp.source;
+        this.saleitems$ = resp;
         return resp;
     }
 
     saleitemsWithCategory$: Observable<SaleItem[]> = combineLatest([
         this.saleitems$,
-        this.categoryservice.categories$
+        this.categoryservice.getCategories()
     ]).pipe(
         map(([saleitems, categories]) =>
             saleitems.map(si => ({
                 ...si,
-                category: categories.find((c: Category) => si.categoryId == c.id).name
+                category: categories.find((c: Category) => si.categoryId.toString() == c.id).name
             }) as SaleItem)
         ),
         shareReplay(1)
     );
 
     changeSelectedSaleItem(selectedSaleItem: SaleItem | null): void {
-        this.selectedSaleItemSource.next(selectedSaleItem);
-    }
-
-    searchSaleItems(search: string): Observable<SaleItem[]> {
-        if (search == null)
-            return this.saleitemsWithCategory$;
-
-        return this.saleitemsWithCategory$.pipe(
-            map(si => si.filter(p => p.description.toLocaleLowerCase().includes(search.toLocaleLowerCase())))
-        );
+        this.selectedSaleItem.next(selectedSaleItem);
     }
 
     getSaleItems(): Observable<SaleItem[]> {

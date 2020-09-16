@@ -4,19 +4,22 @@ import { Observable, BehaviorSubject, throwError, Subject, of } from 'rxjs';
 import { catchError, tap, shareReplay, filter } from 'rxjs/operators';
 import { Guid } from "guid-typescript";
 import { Category } from '../interfaces/category';
+import { newArray } from '@angular/compiler/src/util';
 
 @Injectable({
     providedIn: 'root'
 })
 export class CategoryService {
     private categoryUrl = 'api/categories';
-    private categories: Category[]=[];
-    private flatCats: Category[]=[];
+    private categories: Category[];
+    public flatCats: Category[]=[];
 
     private selectedCategoryId = new BehaviorSubject<string | null>(null);
-    //private categoriesInSelection = new BehaviorSubject<string[] | null>(null);
+    private selectedCategory = new BehaviorSubject<Category | null>(null);
+    private categoriesInSelection = new BehaviorSubject<string[] | null>(null);
     selectedCategoryId$ = this.selectedCategoryId.asObservable();
-    //categoriesInSelection$ = this.categoriesInSelection.asObservable();
+    categoriesInSelection$ = this.categoriesInSelection.asObservable();
+    public selectedCategory$=this.selectedCategory.asObservable();
 
     // All Categories
     getCategories(): Observable<Category[]> {
@@ -25,7 +28,8 @@ export class CategoryService {
                 catchError(this.handleError),
                 tap(c => {
                     this.categories = c;
-                    this.flatCats = this.flattenCategories(c[0],this.flatCats);
+                    this.flatCats=[];
+                    this.flattenCategories(c[0],this.flatCats);
                 })
             );
         shareReplay(1)
@@ -34,55 +38,64 @@ export class CategoryService {
     constructor(private http: HttpClient) {
     }
 
-    changeSelectedCategory(id: string): void {
+    changeSelectedCategory(id: string): void {        
         if (id) {
+            var cat=this.getCategory(id);
+            cat.includedCategoryIds=this.getCategoriesInCategory(id);
+            this.selectedCategory.next(cat);
             this.selectedCategoryId.next(id);
         }
     }
 
     getCategoriesInCategory(id: string): string[] | null {
-        var result: string[];
+        var result: string[]=[];
         if (this.flatCats && id) {
-            var c=this.flatCats.find(p=>p.id==id);
-            if(c) {
-                result=this.flattenCategoryIds(c,result);
+            var c = this.flatCats.find(p => p.id == id);
+            if (c) {
+                this.flattenCategoryIds(c,result); 
             }
         }
         return result;
     }
 
-    getCategory(id: string, cats: (Category[] | null)): Category {
+    getCategory(id: string): Category {
+        var result:Category;
         if (this.flatCats) {
-            console.log("Service has flatCats ");
-            var cat = this.flatCats.find(p => p.id.toString() == id);
-            console.log("Found category is " + JSON.stringify(cat));
-            return cat;
+            result = this.flatCats.find(p => p.id.toString() == id);
         }
-        else
-            return this.initializeCategory();
+        if(!result)
+            result= this.initializeCategory();
+
+        return result;
     }
 
-    flattenCategories(cat: Category, catArr: Category[]): Category[] {
-        if (!cat.categories || cat.categories.length == 0)
-            return catArr;
+    countCategories(cat: Category): number {
+        var result=1;
         if (cat.categories && cat.categories.length > 0) {
             cat.categories.forEach(c => {
-                catArr.push(c);
+                result += this.countCategories(c);
+            });
+        }
+        return result;
+    }
+
+    flattenCategories(cat: Category, catArr: Category[]): void {
+        catArr.push(cat);
+        if (cat.categories && cat.categories.length > 0) {
+            cat.categories.forEach(c => {
                 this.flattenCategories(c, catArr);
             });
         }
     }
 
-    flattenCategoryIds(cat: Category, catIdArr: string[]): string[] {
-        if (!cat.categories || cat.categories.length == 0)
-            return catIdArr;
+    flattenCategoryIds(cat: Category, catIdArr: string[]): void {
+        catIdArr.push(cat.id);
         if (cat.categories && cat.categories.length > 0) {
             cat.categories.forEach(c => {
-                catIdArr.push(c.id);
                 this.flattenCategoryIds(c, catIdArr);
             });
         }
-    }    
+    }
 
     saveCategory(Category: Category): Observable<string | Category> {
         const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
@@ -135,9 +148,10 @@ export class CategoryService {
         // Return an initialized object
         return {
             'id': Guid.create().toString(),
-            name: '',
+            name: 'All Categories',
             parentId: null,
-            categories: null
+            includedCategoryIds: [],
+            categories: []
         };
     }
 

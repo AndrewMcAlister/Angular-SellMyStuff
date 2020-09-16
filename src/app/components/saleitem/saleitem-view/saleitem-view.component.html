@@ -1,6 +1,45 @@
-<input type="text" name="searchBox" [(ngModel)]="searchText" />You Typed {{searchText}}
-<div class='categorySelection'>
-    Your category id is {{selectedCategoryId}}
-    <category-selector *ngIf='categories' #categorySelector [categories]='categories'
-        (categoryChanged)='onCategoryChanged($event)'></category-selector>
-</div>
+<table class="pageunderbanner" style="margin-top: 100px">
+    <tr>
+        <th>
+
+        </th>
+        <th>
+            <div class="searcharea" role="search">
+                <span>
+                    Search:<input type="text" name="searchBox" [(ngModel)]="searchText" />
+                    <button (click)='SearchButtonClick()'>Search</button>
+                </span>
+            </div>
+        </th>
+    </tr>
+    <tr>
+        <td class="leftsidebar">
+            <div>
+                <category-selector *ngIf='categories?.length' #categorySelector [categories]='categories'></category-selector>
+            </div>
+        </td>
+        <td>
+            <div class="table-responsive" *ngIf='searchResults$'>
+                <table class='table mb-0'>
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Title</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor='let item of searchResults$ | async'>
+                            <td>
+                                <img [src]="item.imageUrls[0]" [title]="item.title" ] [style.width.px]="imageWidth"
+                                    [style.margin.px]="imageMargin">
+                            </td>
+                            <td>
+                                <a [routerLink]="['/items',item.id]">{{item.title}}</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </td>
+    </tr>
+</table>

@@ -30,7 +30,7 @@ export class CategoryComponent implements OnInit{
   }
 
   ngOnInit(){
-    this.categories$ = this.cs.categories$
+    this.categories$ = this.cs.getCategories()
     .pipe(
       catchError(err => {
         this.errorMessage = err;

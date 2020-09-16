@@ -20,8 +20,8 @@ import { CategoryComponent } from './components/category/category.component';
     LoginComponent,
     UserRegisterComponent,
     CategoryComponent,
-    CategorySelectorComponent   
-  ],
+    CategorySelectorComponent 
+    ],
   imports: [
     BrowserModule,
     FormsModule,
@@ -30,7 +30,7 @@ import { CategoryComponent } from './components/category/category.component';
     InMemoryWebApiModule.forRoot(AppDataService, { delay: 1000 })
   ],
   exports: [
-    CategorySelectorComponent
+    CategoryComponent
   ],
   providers: [],
   bootstrap: [AppComponent]

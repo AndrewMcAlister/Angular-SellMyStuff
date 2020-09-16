@@ -16,11 +16,10 @@
 }
 
 .catSelected {
-    background-color: coral;
+    background-color: gold;
 }
 
 ul {
     list-style-type:none ;
-    border-block-color: red; 
-    padding-left:15px;
+    padding-left:5px;
 }
