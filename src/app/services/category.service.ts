@@ -11,14 +11,13 @@ import { newArray } from '@angular/compiler/src/util';
 })
 export class CategoryService {
     private categoryUrl = 'api/categories';
-    private categories: Category[];
+    private categories: Category[]=[];
     public flatCats: Category[]=[];
 
-    private selectedCategoryId = new BehaviorSubject<Guid | null>(null);
-    private selectedCategory = new BehaviorSubject<Category | null>(null);
-    private categoriesInSelection = new BehaviorSubject<Guid[] | null>(null);
+    private selectedCategoryId = new BehaviorSubject<string | null>(null);
     selectedCategoryId$ = this.selectedCategoryId.asObservable();
-    categoriesInSelection$ = this.categoriesInSelection.asObservable();
+    
+    private selectedCategory = new BehaviorSubject<Category | null>(null);
     public selectedCategory$=this.selectedCategory.asObservable();
 
     // All Categories
@@ -28,30 +27,31 @@ export class CategoryService {
                 catchError(this.handleError),
                 tap(c => {
                     this.categories = c;
+                    //console.log(JSON.stringify(c));
                     this.flatCats=[];
                     this.flattenCategories(c[0],this.flatCats);
-                })
+                }),
+                shareReplay()
             );
-        shareReplay(1)
     }
 
     constructor(private http: HttpClient) {
     }
 
-    changeSelectedCategory(id: Guid): void {        
+    changeSelectedCategory(id: string): void {        
         if (id) {
             var cat=this.getCategory(id);
             cat.includedCategoryIds=this.getCategoriesInCategory(id);
             //console.log('changeSelectedCategory Cat is ' + id.toString());
-            this.selectedCategory.next(cat);
             this.selectedCategoryId.next(id);
+            this.selectedCategory.next(cat);
         }
     }
 
-    getCategoriesInCategory(id: Guid): Guid[] | null {
-        var result: Guid[]=[];
+    getCategoriesInCategory(id: string): string[] | null {
+        var result: string[]=[];
         if (this.flatCats && id) {
-            var c = this.flatCats.find(p => p.idStr == id.toString());
+            var c = this.flatCats.find(p => p.id == id);
             if (c) {
                 this.flattenCategoryIds(c,result); 
             }
@@ -59,12 +59,11 @@ export class CategoryService {
         return result;
     }
 
-    getCategory(id: Guid): Category {
+    getCategory(id: string): Category {
         var result:Category;
-        //console.log('getCategory ' + JSON.stringify(this.flatCats[5].idStr));
         //console.log('getCategory ' + id.toString());
         if (this.flatCats) {
-            result = this.flatCats.find(p => p.idStr == id.toString());
+            result = this.flatCats.find(p => p.id == id);
             console.log('getCategory result: ' + JSON.stringify(result.id))
         }
         if(!result)
@@ -92,13 +91,15 @@ export class CategoryService {
         }
     }
 
-    flattenCategoryIds(cat: Category, catIdArr: Guid[]): void {
+    flattenCategoryIds(cat: Category, catIdArr: string[]): void {
         catIdArr.push(cat.id);
         if (cat.categories && cat.categories.length > 0) {
             cat.categories.forEach(c => {
                 this.flattenCategoryIds(c, catIdArr);
             });
         }
+        console.log(JSON.stringify(cat));
+
     }
 
     saveCategory(Category: Category): Observable<string | Category> {
@@ -109,7 +110,7 @@ export class CategoryService {
         return this.updateCategory(Category, headers);
     }
 
-    deleteCategory(id: Guid): Observable<string | Category> {
+    deleteCategory(id: string): Observable<string | Category> {
         const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
         const url = `${this.categoryUrl}/${id}`;
         return this.http.delete<Category>(url, { headers: headers })
@@ -150,7 +151,7 @@ export class CategoryService {
 
     private initializeCategory(): Category {
         // Return an initialized object
-        var c = new Category(Guid.create(),'new category',null,[],[]);
+        var c = new Category(Guid.create().toString(),'new category',null,[],[]);
         return c;
     }
 

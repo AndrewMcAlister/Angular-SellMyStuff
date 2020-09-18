@@ -1,20 +1,16 @@
-import { Guid } from 'guid-typescript';
-
 export class Category {
-    id: Guid;
-    idStr: string; //so array of Category can be searched with .find
+    id: string;
     name: string;
-    parentId?: Guid;
-    includedCategoryIds?: Guid[];
+    parentId?: string;
+    includedCategoryIds?: string[];
     categories?: Category[];
   
-    constructor(id: Guid, name: string, parentId?: Guid,includedCategoryIds?: Guid[], categories?: Category[]) {
+    constructor(id: string, name: string, parentId?: string,includedCategoryIds?: string[], categories?: Category[]) {
       this.id=id;
       this.name=name;
       this.parentId=parentId;
       this.includedCategoryIds=includedCategoryIds;
       this.categories=categories;
-      this.idStr=id.toString();
     }
   }
   

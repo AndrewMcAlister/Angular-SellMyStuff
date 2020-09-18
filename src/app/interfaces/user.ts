@@ -1,7 +1,5 @@
-import { Guid } from 'guid-typescript';
-
 export interface User {
-    id: Guid;
+    id: string;
     firstName: string;
     lastName: string;
     email: string;

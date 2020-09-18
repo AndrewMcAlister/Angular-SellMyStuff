@@ -1,4 +1,4 @@
-import { Injectable, Pipe } from '@angular/core';
+import { Injectable, OnInit, Pipe } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError, Subject, of, combineLatest, from } from 'rxjs';
 import { catchError, tap, map, shareReplay, filter } from 'rxjs/operators';
@@ -12,59 +12,79 @@ import { stringify } from 'querystring';
 @Injectable({
     providedIn: 'root'
 })
-export class SaleItemService {
+export class SaleItemService implements OnInit{
     private saleitemsUrl = 'api/saleitems';
     private selectedSaleItem = new BehaviorSubject<SaleItem | null>(null);
     selectedSaleItemChanges$ = this.selectedSaleItem.asObservable();
-    allSaleItemsWithCategories$ = this.getAllSaleItemsWithCategories();
+    allSaleItemsWithCategories: SaleItem[]=[];
 
     constructor(private http: HttpClient,
         private categoryservice: CategoryService) {
+    }
+
+    ngOnInit(): void {
+        this.getAllSaleItemsWithCategories();
     }
 
     // All saleitems
     getAllSaleItems(): Observable<SaleItem[]> {
         var resp = this.http.get<SaleItem[]>(this.saleitemsUrl)
             .pipe(
-                tap(data => console.log('SaleItems', JSON.stringify(data))),
+                tap(data => console.log('SaleItems', JSON.stringify(data)))
             );
         return resp;
     }
 
-    // All saleitems
+    //All saleitems
     getAllSaleItemsWithCategories(): Observable<SaleItem[]> {
-        return combineLatest([
-            this.http.get<SaleItem[]>(this.saleitemsUrl),
-            this.categoryservice.getCategories()
-        ]).pipe(
-            map(([saleitems, categories]) =>
-                saleitems.map(si => ({
-                    ...si,
-                    category: categories.find((c: Category) => si.categoryId == c.id).name
-                }) as SaleItem)
-            ),
-            shareReplay(1)
-        );
+        return this.http.get<SaleItem[]>(this.saleitemsUrl).pipe(tap(p=>this.allSaleItemsWithCategories=p));
+    }
+        
+    // //All saleitems
+    // getAllSaleItemsWithCategories(): Observable<SaleItem[]> {
+    //     return this.http.get<SaleItem[]>(this.saleitemsUrl)
+    //     .pipe(
+    //         map(saleitems =>
+    //             saleitems.map(si => ({
+    //                 ...si,
+    //                 category: (this.categoryservice.flatCats.find(c => si.categoryId == c.id)).name
+    //             }) as SaleItem)
+    //         ),
+    //         shareReplay()
+    //     );
+    // }
+
+    searchSaleItems(cats: string[], searchText: string): Observable<SaleItem[]> {
+        return of(this.allSaleItemsWithCategories);
     }
 
-    searchSaleItems(cats: Guid[], searchText: string): Observable<SaleItem[]> {
-        return this.allSaleItemsWithCategories$
-            .pipe(
-                map(si =>
-                    si.filter(
-                        p => cats.includes(p.categoryId)
-                            && (
-                                p.tags.includes(searchText)
-                                || p.description.includes(searchText)
-                                || p.title.includes(searchText)
-                            )
-                    )
-                )
-            )
-    };
+    // searchSaleItems(cats: string[], searchText: string): Observable<SaleItem[]> {
+    //     return this.allSaleItemsWithCategories$
+    //         .pipe(
+    //             tap(l=>console.log('found items ' + JSON.stringify(l)))
+    //         )
+    // }
+
+    // searchSaleItems(cats: string[], searchText: string): Observable<SaleItem[]> {
+    //     return this.allSaleItemsWithCategories$
+    //         .pipe(
+    //             map(si =>
+    //                 si.filter(
+    //                     p => cats.includes(p.categoryId)
+    //                         && (
+    //                             p.tags.includes(searchText)
+    //                             || p.description.includes(searchText)
+    //                             || p.title.includes(searchText)
+    //                         )
+    //                 )
+    //             )                
+    //         ).pipe(
+    //             tap(l=>console.log('found items ' + JSON.stringify(l)))
+    //         )
+    // }
 
 
-    searchSaleItemsWithCategory(cats: Guid[], searchText: string) {
+    searchSaleItemsWithCategory(cats: string[], searchText: string) {
         return combineLatest([
             this.searchSaleItems(cats, searchText),
             this.categoryservice.getCategories()
@@ -83,13 +103,11 @@ export class SaleItemService {
         this.selectedSaleItem.next(selectedSaleItem);
     }
 
-    getSaleItem(id: Guid): Observable<SaleItem> | null {
+    getSaleItem(id: string): SaleItem | null {
         if (id === null) {
-            return of(this.initializeSaleItem());
+            return this.initializeSaleItem();
         }
-        var foundItem = this.allSaleItemsWithCategories$.pipe(
-            map(si => si.find(si => si.id == id)
-            ));
+        var foundItem = this.allSaleItemsWithCategories.find(si => si.id == id);
 
         if (foundItem) {
             return foundItem;
@@ -98,13 +116,11 @@ export class SaleItemService {
             return null;
     }
 
-    getSaleItemByCategory(categoryId: Guid): Observable<SaleItem[]> {
+    getSaleItemsByCategory(categoryId: string): SaleItem[] {
         if (categoryId == null) {
             throwError("Please supply a category");
         }
-        return this.allSaleItemsWithCategories$.pipe(
-            map(si => si.filter(p => p.categoryId == categoryId))
-        )
+        return this.allSaleItemsWithCategories.filter(p => p.categoryId == categoryId);
     };
 
     saveSaleItem(SaleItem: SaleItem): Observable<SaleItem> {
@@ -115,7 +131,7 @@ export class SaleItemService {
         return this.updateSaleItem(SaleItem, headers);
     }
 
-    deleteSaleItem(id: Guid): void {
+    deleteSaleItem(id: string): void {
         const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
         const url = `${this.saleitemsUrl}/${id}`;
         this.http.delete<SaleItem>(url, { headers: headers });
@@ -123,7 +139,7 @@ export class SaleItemService {
     }
 
     private createSaleItem(saleitem: SaleItem, headers: HttpHeaders): Observable<SaleItem> {
-        saleitem.id = Guid.create();
+        saleitem.id = Guid.create().toString();
         return this.http.post<SaleItem>(this.saleitemsUrl, saleitem, { headers: headers })
             .pipe(
                 tap(data => console.log('createSaleItem: ' + JSON.stringify(data))),

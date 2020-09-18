@@ -1,15 +1,13 @@
-import { Guid } from 'guid-typescript';
-
 export interface SaleItem {
-    id: Guid;
+    id: string;
     title: string;
     description?: string;
     price?: number;
-    categoryId?: Guid;
+    categoryId?: string;
     category: string;
     imageUrls : string[];
     tags : string[];
-    userId? : Guid;
+    userId? : string;
     created: Date;
     lastRevised?: Date;
     topImageIndex?: number;
