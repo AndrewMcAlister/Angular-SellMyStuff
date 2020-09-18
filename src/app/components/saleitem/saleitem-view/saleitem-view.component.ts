@@ -32,7 +32,7 @@ export class SaleitemViewComponent implements OnInit, OnDestroy {
     if(this._selectedCategory)
     {
       console.log("Category changed to " + value.name);
-      console.log("Included categories are " + value.includedCategoryIds);
+      console.log("Included categories are " + JSON.stringify(value.includedCategoryIds));
     }
   }
 
@@ -45,11 +45,10 @@ export class SaleitemViewComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.cs.getCategories().subscribe(p => this.categories = p); //supplies the category[] to the category-selector component
     this.subSelCat=this.cs.selectedCategory$.subscribe(cat => this.selectedCategory = cat);
-    this.searchResults$=this.sis.searchResults$;
   }
 
   SearchButtonClick() {
-    this.sis.searchSaleItems(this.selectedCategory.includedCategoryIds,this.searchText )
+    this.searchResults$=this.sis.searchSaleItems(this.selectedCategory.includedCategoryIds,this.searchText )
   }
 
 }

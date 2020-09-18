@@ -15,7 +15,7 @@
     <tr>
         <td class="leftsidebar">
             <div>
-                <category-selector *ngIf='categories?.length' #categorySelector [categories]='categories'></category-selector>
+                <category-selector *ngIf='categories?.length' #categorySelector [category]='categories[0]' [categories]='categories'></category-selector>
             </div>
         </td>
         <td>

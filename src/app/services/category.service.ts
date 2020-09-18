@@ -14,9 +14,9 @@ export class CategoryService {
     private categories: Category[];
     public flatCats: Category[]=[];
 
-    private selectedCategoryId = new BehaviorSubject<string | null>(null);
+    private selectedCategoryId = new BehaviorSubject<Guid | null>(null);
     private selectedCategory = new BehaviorSubject<Category | null>(null);
-    private categoriesInSelection = new BehaviorSubject<string[] | null>(null);
+    private categoriesInSelection = new BehaviorSubject<Guid[] | null>(null);
     selectedCategoryId$ = this.selectedCategoryId.asObservable();
     categoriesInSelection$ = this.categoriesInSelection.asObservable();
     public selectedCategory$=this.selectedCategory.asObservable();
@@ -38,19 +38,20 @@ export class CategoryService {
     constructor(private http: HttpClient) {
     }
 
-    changeSelectedCategory(id: string): void {        
+    changeSelectedCategory(id: Guid): void {        
         if (id) {
             var cat=this.getCategory(id);
             cat.includedCategoryIds=this.getCategoriesInCategory(id);
+            //console.log('changeSelectedCategory Cat is ' + id.toString());
             this.selectedCategory.next(cat);
             this.selectedCategoryId.next(id);
         }
     }
 
-    getCategoriesInCategory(id: string): string[] | null {
-        var result: string[]=[];
+    getCategoriesInCategory(id: Guid): Guid[] | null {
+        var result: Guid[]=[];
         if (this.flatCats && id) {
-            var c = this.flatCats.find(p => p.id == id);
+            var c = this.flatCats.find(p => p.idStr == id.toString());
             if (c) {
                 this.flattenCategoryIds(c,result); 
             }
@@ -58,10 +59,13 @@ export class CategoryService {
         return result;
     }
 
-    getCategory(id: string): Category {
+    getCategory(id: Guid): Category {
         var result:Category;
+        //console.log('getCategory ' + JSON.stringify(this.flatCats[5].idStr));
+        //console.log('getCategory ' + id.toString());
         if (this.flatCats) {
-            result = this.flatCats.find(p => p.id.toString() == id);
+            result = this.flatCats.find(p => p.idStr == id.toString());
+            console.log('getCategory result: ' + JSON.stringify(result.id))
         }
         if(!result)
             result= this.initializeCategory();
@@ -88,7 +92,7 @@ export class CategoryService {
         }
     }
 
-    flattenCategoryIds(cat: Category, catIdArr: string[]): void {
+    flattenCategoryIds(cat: Category, catIdArr: Guid[]): void {
         catIdArr.push(cat.id);
         if (cat.categories && cat.categories.length > 0) {
             cat.categories.forEach(c => {
@@ -105,7 +109,7 @@ export class CategoryService {
         return this.updateCategory(Category, headers);
     }
 
-    deleteCategory(id: string): Observable<string | Category> {
+    deleteCategory(id: Guid): Observable<string | Category> {
         const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
         const url = `${this.categoryUrl}/${id}`;
         return this.http.delete<Category>(url, { headers: headers })
@@ -146,13 +150,8 @@ export class CategoryService {
 
     private initializeCategory(): Category {
         // Return an initialized object
-        return {
-            'id': Guid.create().toString(),
-            name: 'All Categories',
-            parentId: null,
-            includedCategoryIds: [],
-            categories: []
-        };
+        var c = new Category(Guid.create(),'new category',null,[],[]);
+        return c;
     }
 
     private handleError(err: HttpErrorResponse) {

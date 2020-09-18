@@ -14,42 +14,12 @@ import { stringify } from 'querystring';
 })
 export class SaleItemService {
     private saleitemsUrl = 'api/saleitems';
-    private saleitems: SaleItem[];
     private selectedSaleItem = new BehaviorSubject<SaleItem | null>(null);
     selectedSaleItemChanges$ = this.selectedSaleItem.asObservable();
-    private searchResults = new BehaviorSubject<SaleItem[] | null>(null);
-    searchResults$ = this.searchResults.asObservable();
+    allSaleItemsWithCategories$ = this.getAllSaleItemsWithCategories();
 
     constructor(private http: HttpClient,
         private categoryservice: CategoryService) {
-    }
-
-    saleitems$ = this.http.get<SaleItem[]>(this.saleitemsUrl)
-        .pipe(
-            tap(data => console.log('SaleItems', JSON.stringify(data))),
-            tap(data => this.saleitems = data)
-        );
-
-    searchSaleItems(cats: string[], searchText: string) {
-        if(cats) {
-            if(!this.saleitems) {
-                var res=this.getAllSaleItems();
-            }
-        //     var results = this.saleitems.filter(
-        //         p => cats.includes(p.categoryId.toString())
-        //             && (
-        //                 p.tags.map(q=>q.toLocaleLowerCase()).includes(searchText.toLocaleLowerCase())
-        //                 || p.description.toLocaleLowerCase().includes(searchText.toLocaleLowerCase())
-        //                 || p.title.toLocaleLowerCase().includes(searchText.toLocaleLowerCase())
-        //             )
-        //     );
-        //     if (results)
-        //         this.searchResults.next(results);
-        // };
-        var arr: SaleItem[]=[];
-        arr.push(this.saleitems[0]);
-        this.searchResults.next(arr);
-        }
     }
 
     // All saleitems
@@ -57,50 +27,82 @@ export class SaleItemService {
         var resp = this.http.get<SaleItem[]>(this.saleitemsUrl)
             .pipe(
                 tap(data => console.log('SaleItems', JSON.stringify(data))),
-                tap(data => this.saleitems = data)
             );
-        this.saleitems$ = resp;
         return resp;
     }
 
-    saleitemsWithCategory$: Observable<SaleItem[]> = combineLatest([
-        this.saleitems$,
-        this.categoryservice.getCategories()
-    ]).pipe(
-        map(([saleitems, categories]) =>
-            saleitems.map(si => ({
-                ...si,
-                category: categories.find((c: Category) => si.categoryId.toString() == c.id).name
-            }) as SaleItem)
-        ),
-        shareReplay(1)
-    );
+    // All saleitems
+    getAllSaleItemsWithCategories(): Observable<SaleItem[]> {
+        return combineLatest([
+            this.http.get<SaleItem[]>(this.saleitemsUrl),
+            this.categoryservice.getCategories()
+        ]).pipe(
+            map(([saleitems, categories]) =>
+                saleitems.map(si => ({
+                    ...si,
+                    category: categories.find((c: Category) => si.categoryId == c.id).name
+                }) as SaleItem)
+            ),
+            shareReplay(1)
+        );
+    }
+
+    searchSaleItems(cats: Guid[], searchText: string): Observable<SaleItem[]> {
+        return this.allSaleItemsWithCategories$
+            .pipe(
+                map(si =>
+                    si.filter(
+                        p => cats.includes(p.categoryId)
+                            && (
+                                p.tags.includes(searchText)
+                                || p.description.includes(searchText)
+                                || p.title.includes(searchText)
+                            )
+                    )
+                )
+            )
+    };
+
+
+    searchSaleItemsWithCategory(cats: Guid[], searchText: string) {
+        return combineLatest([
+            this.searchSaleItems(cats, searchText),
+            this.categoryservice.getCategories()
+        ]).pipe(
+            map(([saleitems, categories]) =>
+                saleitems.map(si => ({
+                    ...si,
+                    category: categories.find((c: Category) => si.categoryId == c.id).name
+                }) as SaleItem)
+            ),
+            shareReplay(1)
+        );
+    }
 
     changeSelectedSaleItem(selectedSaleItem: SaleItem | null): void {
         this.selectedSaleItem.next(selectedSaleItem);
     }
 
-    getSaleItems(): Observable<SaleItem[]> {
-        return this.saleitemsWithCategory$;
-    }
-
-    getSaleItem(id: Guid): Observable<SaleItem> {
+    getSaleItem(id: Guid): Observable<SaleItem> | null {
         if (id === null) {
             return of(this.initializeSaleItem());
         }
-        const foundItem = this.saleitemsWithCategory$.pipe(
+        var foundItem = this.allSaleItemsWithCategories$.pipe(
             map(si => si.find(si => si.id == id)
             ));
+
         if (foundItem) {
             return foundItem;
         }
+        else
+            return null;
     }
 
     getSaleItemByCategory(categoryId: Guid): Observable<SaleItem[]> {
         if (categoryId == null) {
             throwError("Please supply a category");
         }
-        return this.saleitemsWithCategory$.pipe(
+        return this.allSaleItemsWithCategories$.pipe(
             map(si => si.filter(p => p.categoryId == categoryId))
         )
     };
