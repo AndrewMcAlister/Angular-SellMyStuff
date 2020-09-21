@@ -4,6 +4,7 @@ import { FormsModule }  from '@angular/forms';
 import { SaleitemViewComponent } from '../saleitem/saleitem-view/saleitem-view.component';
 import { CategorySelectorComponent } from '../shared/category-selector/category-selector.component';
 import { SaleitemDetailComponent } from './saleitem-detail/saleitem-detail.component';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @NgModule({
     declarations: [
@@ -17,9 +18,10 @@ import { SaleitemDetailComponent } from './saleitem-detail/saleitem-detail.compo
           { path: '', component: SaleitemViewComponent},
           { path: ':id', component: SaleitemDetailComponent}
       ]),
+      Router,
+      ActivatedRoute
     ],
     exports: [
-        //SaleitemViewComponent,
         CategorySelectorComponent,
         SaleitemDetailComponent  
     ],

@@ -10,7 +10,7 @@ import { SaleitemViewComponent } from './components/saleitem/saleitem-view/salei
                 component: SaleitemViewComponent
             },
             {
-                path: 'forsale',
+                path: 'saleitems',
                 component: SaleitemViewComponent
             }
         ])

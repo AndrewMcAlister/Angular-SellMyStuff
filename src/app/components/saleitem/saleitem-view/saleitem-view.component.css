@@ -40,3 +40,8 @@
     font-size: x-large;
     font-weight: 300;
   }
+
+  .usererror {
+    font-size: medium;
+    color: red;
+  }

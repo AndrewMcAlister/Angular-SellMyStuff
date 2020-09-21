@@ -8,6 +8,7 @@
                 <span>
                     Search:<input type="text" name="searchBox" [(ngModel)]="searchText" />
                     <button (click)='SearchButtonClick()'>Search</button>
+                    <div class="usererror" *ngIf='errorMessage$|async'>{{errorMessage$}}</div>
                 </span>
             </div>
         </th>
@@ -30,11 +31,11 @@
                     <tbody>
                         <tr *ngFor='let item of searchResults$ | async'>
                             <td>
-                                <img [src]="item.imageUrls[0]" [title]="item.title" ] [style.width.px]="imageWidth"
-                                    [style.margin.px]="imageMargin">
+                                <img [src]="item.imageUrls[0]" [title]="item.title" [style.width.px]="imageWidth"
+                                    [style.margin.px]="imageMargin"/>
                             </td>
                             <td>
-                                <a [routerLink]="['/items',item.id]">{{item.title}}</a>
+                                <a [routerLink]="['/saleitems', item.id]">{{item.title}}</a>
                             </td>
                         </tr>
                     </tbody>

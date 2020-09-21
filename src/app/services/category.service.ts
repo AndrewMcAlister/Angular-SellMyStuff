@@ -64,7 +64,7 @@ export class CategoryService {
         //console.log('getCategory ' + id.toString());
         if (this.flatCats) {
             result = this.flatCats.find(p => p.id == id);
-            console.log('getCategory result: ' + JSON.stringify(result.id))
+            //getCategory result: ' + JSON.stringify(result.id))
         }
         if(!result)
             result= this.initializeCategory();
@@ -98,8 +98,6 @@ export class CategoryService {
                 this.flattenCategoryIds(c, catIdArr);
             });
         }
-        console.log(JSON.stringify(cat));
-
     }
 
     saveCategory(Category: Category): Observable<string | Category> {

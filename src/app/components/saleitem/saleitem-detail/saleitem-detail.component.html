@@ -1,1 +1,44 @@
-<p>saleitem-detail works!</p>
+    <div class="table-responsive" *ngIf='currentItem'>
+        <table class='table mb-0'>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Category</th>
+                    <th>Created</th>
+                    <th>Quantity</th>
+                    <th>Image</th>                                                            
+                    <th>Images</th>                                                            
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor='let item of searchResults$ | async'>
+                    <td>
+                        {{currentItem.title}}
+                    </td>
+                    <td>{{currentItem.description}}</td>
+                    <td>{{currentItem.price}}</td>
+                    <td>{{currentItem.category}}</td>
+                    <td>{{currentItem.quantity}}</td>
+                    <td>
+                        <img src='{{currentImageUrl$}}' title="item.title" style.width.px="imageWidth"
+                            style.margin.px="imageMargin" />
+                    </td>
+                    <td>
+                        <ul *ngIf="currentItem.imageUrls.length > 1" class="thumbnaillist">
+                            <div *ngFor="let url in currentItem.imageUrls">
+                            <li>
+                                <a href='url' (click)='thumbnail_click($event)'>
+                                    <img [src]="url" [title]="item.title" [style.width.px]="thumbNailWidth"
+                                    [style.margin.px]="thumbNailMargin"/>
+                                </a>
+                            </li>
+                        </div>
+                        </ul>
+                    </td>
+                </tr>                
+            </tbody>
+        </table>
+        <a [routerLink]="['/items',item.id]">Contact Seller</a>
+    </div>

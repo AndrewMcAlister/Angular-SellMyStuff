@@ -17,11 +17,11 @@ export class SaleitemViewComponent implements OnInit, OnDestroy {
   categoryId: string;
   categoryName: string;
   categories: Category[];
-  searchResults$: Observable<SaleItem[]>;
+  searchResults$: Observable<SaleItem[] | null>;
   subSelCat: Subscription;
-  subSalesItems: Subscription;
-  imageWidth = 50;
-  imageMargin = 2;  
+  errorMessage$: Observable<string[] | null>;
+  imageWidth = 100;
+  imageMargin = 2;
 
   private _selectedCategory: Category;
   get selectedCategory(): Category {
@@ -29,26 +29,27 @@ export class SaleitemViewComponent implements OnInit, OnDestroy {
   }
   set selectedCategory(value: Category) {
     this._selectedCategory = value;
-    if(this._selectedCategory)
-    {
+    if (this._selectedCategory) {
       console.log("Category changed to " + value.name);
-      console.log("Included categories are " + JSON.stringify(value.includedCategoryIds));
+      this.sis.clearErrors();
     }
   }
 
   constructor(private cs: CategoryService, private sis: SaleItemService) {
   }
   ngOnDestroy(): void {
-    this.subSelCat.unsubscribe;    
+    this.subSelCat.unsubscribe;
   }
 
   ngOnInit(): void {
+    //this.searchResults$=this.sis.searchSaleItems(this.selectedCategory.includedCategoryIds,this.searchText);
     this.cs.getCategories().subscribe(p => this.categories = p); //supplies the category[] to the category-selector component
-    this.subSelCat=this.cs.selectedCategory$.subscribe(cat => this.selectedCategory = cat);
+    this.subSelCat = this.cs.selectedCategory$.subscribe(cat => this.selectedCategory = cat);
+    this.errorMessage$ = this.sis.errorMessage$;
   }
 
   SearchButtonClick() {
-    this.searchResults$=this.sis.searchSaleItems(this.selectedCategory.includedCategoryIds,this.searchText )
+    this.searchResults$ = this.sis.searchSaleItems(this.selectedCategory?.includedCategoryIds, this.searchText);
   }
 
 }

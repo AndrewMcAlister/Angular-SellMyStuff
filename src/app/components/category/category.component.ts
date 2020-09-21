@@ -37,7 +37,7 @@ export class CategoryComponent implements OnInit{
         return EMPTY;
       })
     );
-    console.log(JSON.stringify(this.cs.flatCats));
+    //console.log(JSON.stringify(this.cs.flatCats));
   }
 
 }

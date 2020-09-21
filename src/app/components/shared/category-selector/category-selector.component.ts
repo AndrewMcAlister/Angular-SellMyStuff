@@ -40,7 +40,7 @@ export class CategorySelectorComponent implements OnInit, OnDestroy {
   }
 
   selectCategory(id: string): void {
-    console.log('selectCategory Cat is ' + id);
+    //console.log('selectCategory Cat is ' + id);
     this.catSer.changeSelectedCategory(id);
   }
 

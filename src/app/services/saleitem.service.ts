@@ -8,22 +8,20 @@ import { AppDataService } from './app-data.service'
 import { CategoryService } from './category.service';
 import { Category } from '../interfaces/category';
 import { stringify } from 'querystring';
+import { SaleitemDetailComponent } from '../components/saleitem/saleitem-detail/saleitem-detail.component';
 
 @Injectable({
     providedIn: 'root'
 })
-export class SaleItemService implements OnInit{
+export class SaleItemService {
     private saleitemsUrl = 'api/saleitems';
     private selectedSaleItem = new BehaviorSubject<SaleItem | null>(null);
     selectedSaleItemChanges$ = this.selectedSaleItem.asObservable();
-    allSaleItemsWithCategories: SaleItem[]=[];
+    allSaleItemsWithCategories: SaleItem[] = [];
+    errorMessage$: Observable<string[] | null>;
 
     constructor(private http: HttpClient,
-        private categoryservice: CategoryService) {
-    }
-
-    ngOnInit(): void {
-        this.getAllSaleItemsWithCategories();
+        private cs: CategoryService) {
     }
 
     // All saleitems
@@ -35,68 +33,57 @@ export class SaleItemService implements OnInit{
         return resp;
     }
 
+    clearErrors(): void {
+        this.errorMessage$ = null;
+    }
+
+
     //All saleitems
     getAllSaleItemsWithCategories(): Observable<SaleItem[]> {
-        return this.http.get<SaleItem[]>(this.saleitemsUrl).pipe(tap(p=>this.allSaleItemsWithCategories=p));
-    }
-        
-    // //All saleitems
-    // getAllSaleItemsWithCategories(): Observable<SaleItem[]> {
-    //     return this.http.get<SaleItem[]>(this.saleitemsUrl)
-    //     .pipe(
-    //         map(saleitems =>
-    //             saleitems.map(si => ({
-    //                 ...si,
-    //                 category: (this.categoryservice.flatCats.find(c => si.categoryId == c.id)).name
-    //             }) as SaleItem)
-    //         ),
-    //         shareReplay()
-    //     );
-    // }
-
-    searchSaleItems(cats: string[], searchText: string): Observable<SaleItem[]> {
-        return of(this.allSaleItemsWithCategories);
+        return this.http.get<SaleItem[]>(this.saleitemsUrl)
+            .pipe(
+                map(saleitems =>
+                    saleitems.map(si => ({
+                        ...si,
+                        category: (this.cs.flatCats.find(c => si.categoryId == c.id)).name
+                    }) as SaleItem)
+                ),
+                tap(p => {
+                    //console.log('All Items returned ' + JSON.stringify(p));
+                    this.allSaleItemsWithCategories = p;
+                }),
+                shareReplay(),
+            )
     }
 
-    // searchSaleItems(cats: string[], searchText: string): Observable<SaleItem[]> {
-    //     return this.allSaleItemsWithCategories$
-    //         .pipe(
-    //             tap(l=>console.log('found items ' + JSON.stringify(l)))
-    //         )
-    // }
+    searchSaleItems(cats: string[], searchText: string): Observable<SaleItem[]> | null {
+        this.errorMessage$ = null;
+        var search: string = "";
+        if (searchText)
+            search = searchText?.toLocaleLowerCase();
 
-    // searchSaleItems(cats: string[], searchText: string): Observable<SaleItem[]> {
-    //     return this.allSaleItemsWithCategories$
-    //         .pipe(
-    //             map(si =>
-    //                 si.filter(
-    //                     p => cats.includes(p.categoryId)
-    //                         && (
-    //                             p.tags.includes(searchText)
-    //                             || p.description.includes(searchText)
-    //                             || p.title.includes(searchText)
-    //                         )
-    //                 )
-    //             )                
-    //         ).pipe(
-    //             tap(l=>console.log('found items ' + JSON.stringify(l)))
-    //         )
-    // }
-
-
-    searchSaleItemsWithCategory(cats: string[], searchText: string) {
-        return combineLatest([
-            this.searchSaleItems(cats, searchText),
-            this.categoryservice.getCategories()
-        ]).pipe(
-            map(([saleitems, categories]) =>
-                saleitems.map(si => ({
-                    ...si,
-                    category: categories.find((c: Category) => si.categoryId == c.id).name
-                }) as SaleItem)
-            ),
-            shareReplay(1)
+        console.log("Categories searched are " + JSON.stringify(cats));
+        var results = this.getAllSaleItemsWithCategories().pipe(
+            map(siArray =>
+                siArray.filter((p: SaleItem) =>
+                    (
+                        !cats || (cats.includes(p.categoryId))
+                        &&
+                        (
+                            p.tags.map(t => t.toLocaleLowerCase()).includes(search.toLocaleLowerCase())
+                            || p.description.toLocaleLowerCase().includes(search)
+                            || p.title.toLocaleLowerCase().includes(search)
+                        )
+                    )
+                )
+            )
         );
+        if (results)
+            return results;
+        else {
+            this.errorMessage$ = of(["No results"]);
+            return null;
+        }
     }
 
     changeSelectedSaleItem(selectedSaleItem: SaleItem | null): void {
