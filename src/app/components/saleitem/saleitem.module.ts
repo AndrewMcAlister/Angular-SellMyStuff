@@ -5,27 +5,29 @@ import { SaleitemViewComponent } from '../saleitem/saleitem-view/saleitem-view.c
 import { CategorySelectorComponent } from '../shared/category-selector/category-selector.component';
 import { SaleitemDetailComponent } from './saleitem-detail/saleitem-detail.component';
 import { Router, ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common';
+
 
 @NgModule({
     declarations: [
-      //SaleitemViewComponent,
+      SaleitemViewComponent,
       CategorySelectorComponent,
       SaleitemDetailComponent   
     ],
     imports: [
-      FormsModule,
       RouterModule.forChild([
           { path: '', component: SaleitemViewComponent},
-          { path: ':id', component: SaleitemDetailComponent}
+          { path: 'saleitems', component: SaleitemDetailComponent}
       ]),
       Router,
       ActivatedRoute
     ],
     exports: [
         CategorySelectorComponent,
+        SaleitemViewComponent,
         SaleitemDetailComponent  
     ],
     providers: [],
   })
-  export class AppModule { }
+  export class SaleItemModule { }
   

@@ -20,7 +20,7 @@
             </div>
         </td>
         <td>
-            <div class="table-responsive" *ngIf='searchResults$'>
+            <div class="table-responsive" *ngIf="searchResults$ | async as searchResults">
                 <table class='table mb-0'>
                     <thead>
                         <tr>
@@ -29,13 +29,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor='let item of searchResults$ | async'>
+                        <tr *ngFor='let item of searchResults'>
                             <td>
                                 <img [src]="item.imageUrls[0]" [title]="item.title" [style.width.px]="imageWidth"
                                     [style.margin.px]="imageMargin"/>
                             </td>
                             <td>
-                                <a [routerLink]="['/saleitems', item.id]">{{item.title}}</a>
+                                <a [routerLink]="['/saleitems',{id:item.id}]">{{item.title}}</a>
                             </td>
                         </tr>
                     </tbody>

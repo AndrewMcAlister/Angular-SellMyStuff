@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { SaleitemDetailComponent } from './components/saleitem/saleitem-detail/saleitem-detail.component';
 import { SaleitemViewComponent } from './components/saleitem/saleitem-view/saleitem-view.component';
 
 @NgModule({
@@ -11,7 +12,7 @@ import { SaleitemViewComponent } from './components/saleitem/saleitem-view/salei
             },
             {
                 path: 'saleitems',
-                component: SaleitemViewComponent
+                component: SaleitemDetailComponent
             }
         ])
     ],

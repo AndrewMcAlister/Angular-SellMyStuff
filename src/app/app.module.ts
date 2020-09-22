@@ -11,16 +11,20 @@ import { AppDataService } from './services/app-data.service';
 import { LoginComponent } from './components/user/pages/login.component';
 import { UserRegisterComponent } from './components/user/pages/user-register.component';
 import { CategoryComponent } from './components/category/category.component';
+import { CommonModule } from '@angular/common';
+import { SaleitemDetailComponent } from './components/saleitem/saleitem-detail/saleitem-detail.component';
+// import { SaleItemModule } from '../app/components/saleitem/saleitem.module'
 
 @NgModule({
   declarations: [
     AppComponent,
-    SaleitemViewComponent,
+    SaleitemViewComponent,    
     CategorySelectorComponent,
     LoginComponent,
     UserRegisterComponent,
     CategoryComponent,
-    CategorySelectorComponent 
+    CategorySelectorComponent,
+    SaleitemDetailComponent
     ],
   imports: [
     BrowserModule,
