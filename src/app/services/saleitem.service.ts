@@ -19,7 +19,8 @@ export class SaleItemService {
     selectedSaleItemChanges$ = this.selectedSaleItem.asObservable();
     allSaleItemsWithCategories: SaleItem[] = [];
     errorMessage$: Observable<string[] | null>;
-
+    searchResults$: Observable<SaleItem[] | null>;
+    
     constructor(private http: HttpClient,
         private cs: CategoryService) {
     }
@@ -56,7 +57,7 @@ export class SaleItemService {
             )
     }
 
-    searchSaleItems(cats: string[], searchText: string): Observable<SaleItem[]> | null {
+    searchSaleItems(cats: string[], searchText: string): void {
         this.errorMessage$ = null;
         var search: string = "";
         if (searchText)
@@ -79,10 +80,9 @@ export class SaleItemService {
             )
         );
         if (results)
-            return results;
+            this.searchResults$=results;
         else {
             this.errorMessage$ = of(["No results"]);
-            return null;
         }
     }
 

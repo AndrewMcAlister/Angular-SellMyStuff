@@ -2,6 +2,9 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { SaleitemDetailComponent } from './components/saleitem/saleitem-detail/saleitem-detail.component';
 import { SaleitemViewComponent } from './components/saleitem/saleitem-view/saleitem-view.component';
+import { LoginComponent } from './components/user/pages/login.component';
+import { UserAccountComponent } from './components/user/pages/user-account.component';
+import { UserRegisterComponent } from './components/user/pages/user-register.component';
 
 @NgModule({
     imports: [
@@ -11,9 +14,26 @@ import { SaleitemViewComponent } from './components/saleitem/saleitem-view/salei
                 component: SaleitemViewComponent
             },
             {
-                path: 'saleitems',
+                path: 'forsale',
+                component: SaleitemViewComponent
+            },                        
+            {
+                path: ':id',
                 component: SaleitemDetailComponent
+            },
+            {
+                path: 'account',
+                component: UserAccountComponent
+            },
+            {
+                path: 'register',
+                component: UserRegisterComponent
+            },
+            {
+                path: 'login',
+                component: LoginComponent
             }
+
         ])
     ],
     exports: [RouterModule]

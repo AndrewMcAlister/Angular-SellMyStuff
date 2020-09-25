@@ -10,6 +10,7 @@ export class UserRegisterComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+    console.log('At Init Register');
   }
 
 }

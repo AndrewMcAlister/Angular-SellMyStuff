@@ -56,5 +56,4 @@ export class SaleitemDetailComponent implements OnInit {
     console.log('next Image URL is ' + event.target.value);
     this.currentImageUrl = '../'+event.target.value;
   }
-
 }

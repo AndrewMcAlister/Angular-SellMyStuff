@@ -286,3 +286,12 @@
       visibility: hidden;
     }
   }
+
+  .header-links li {
+    display: inline;
+    padding-right: 20pt;
+  }
+  
+  .header-links-right {
+    float:right;
+  }

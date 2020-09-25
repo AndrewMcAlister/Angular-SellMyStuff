@@ -36,7 +36,9 @@ export class SaleitemViewComponent implements OnInit, OnDestroy {
   }
 
   constructor(private cs: CategoryService, private sis: SaleItemService) {
+    console.log('In saleitem-view component constructor');
   }
+
   ngOnDestroy(): void {
     this.subSelCat.unsubscribe;
   }
@@ -49,7 +51,9 @@ export class SaleitemViewComponent implements OnInit, OnDestroy {
   }
 
   SearchButtonClick() {
-    this.searchResults$ = this.sis.searchSaleItems(this.selectedCategory?.includedCategoryIds, this.searchText);
+    //this.searchResults$ = this.sis.searchSaleItems(this.selectedCategory?.includedCategoryIds, this.searchText);    
+    this.sis.searchSaleItems(this.selectedCategory?.includedCategoryIds, this.searchText);
+    this.searchResults$=this.sis.searchResults$;
   }
 
 }

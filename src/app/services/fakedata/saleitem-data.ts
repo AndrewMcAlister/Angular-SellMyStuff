@@ -7,7 +7,7 @@ export class SaleItemData {
             title:"Class A HiFi Amplifier",
             description:"Its a Darred DV845 mono amp (pair)",
             price:4995,
-            categoryId: "30C22A7F-026E-475C-BA4A-4C1FD2B9329B",
+            categoryId: "CFBC01DC-DE8D-42BE-A26B-2757387D89D4",
             category: null,
             imageUrls: ["/assets/2E1D5C17-1C94-49E3-803F-E0EC87BEFDA3-Amp.jpg"],
             tags: ["class a", "hifi"],

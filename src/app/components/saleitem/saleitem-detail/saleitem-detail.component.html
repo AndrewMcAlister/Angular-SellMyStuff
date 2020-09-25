@@ -1,34 +1,42 @@
-<div class="table-responsive">
-    <table class='table mb-0  pageunderbanner' *ngIf='currentItem'>
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>Category</th>
-                <th>Created</th>
-                <th>Quantity</th>
-                <th>Image</th>
-                <th>Images</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>
-                    {{currentItem.title}}
-                </td>
-                <td>{{currentItem.description}}</td>
-                <td>{{currentItem.price}}</td>
-                <td>{{currentItem.category}}</td>
-                <td>{{currentItem.quantity}}</td>
-                <td>
-                    <img src='{{currentImageUrl}}' title="item.title" style.width.px="{{imageWidth}}"
-                        style.margin.px="imageMargin" />
-                </td>
-                <td>
+<div class='pageunderbanner panel panel-primary' *ngIf='currentItem'>
+    <div class="panel-heading">
+        {{pageTitle + ': ' + currentItem.title}}
+    </div>
+    <div class='panel-body'>
+        <div class='row'>
+            <div class='col-md-6'>
+                <div class='row'>
+                    <div class='col-md-3'>Title:</div>
+                    <div class='col-md-6'>{{currentItem.title}}</div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-3'>Description:</div>
+                    <div class='col-md-6'>{{currentItem.description | lowercase}}</div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-3'>Price:</div>
+                    <div class='col-md-6'>{{currentItem.price|currency:'AUD':'symbol'}}</div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-3'>Category:</div>
+                    <div class='col-md-6'>{{currentItem.category}}</div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-3'>Quantity:</div>
+                    <div class='col-md-6'>{{currentItem.quantity|currency:'USD':'symbol'}}</div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-3'>Image:</div>
+                    <div class='col-md-6'>
+                        <img src='{{currentImageUrl}}' title="item.title" style.width.px="{{imageWidth}}"
+                            style.margin.px="imageMargin" />
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-3'>Images:</div>
                     <div *ngIf="currentItem.imageUrls.length > 1">
                         <ul class="thumbnaillist">
-                            <li *ngFor="let url in currentItem.imageUrls">
+                            <li *ngFor="let url of currentItem.imageUrls">
                                 <a [href]="url" (click)='thumbnail_click($event)'>
                                     <img [src]="url" [title]="item.title" [style.width.px]="thumbNailWidth"
                                         [style.margin.px]="thumbNailMargin" />
@@ -36,9 +44,14 @@
                             </li>
                         </ul>
                     </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    Contact Seller
+                </div>
+            </div>
+
+            <div class='panel-footer'>
+                <a class='btn btn-default' style='width:80px' (click)='onBack()'>
+                    <i class='glyphicon glyphicon-chevron-left'></i> Back
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
